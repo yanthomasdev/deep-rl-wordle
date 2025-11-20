@@ -1,0 +1,22 @@
+cabal-version: 3.0
+name: wordle
+version: 0.1.0.0
+synopsis: A Wordle implementation in Haskell
+license: MIT
+author: Alan Moura, Álvaro Ferrante, Igor Silva, João Victor, Juliana Cabral, Yan Thomas
+build-type: Simple
+
+library
+  exposed-modules: Game
+  hs-source-dirs: src
+  build-depends: base ^>=4.18.3.0
+  default-language: Haskell2010
+
+executable wordle-cli
+  main-is: Main.hs
+  hs-source-dirs: app
+  build-depends:
+    base ^>=4.18.3.0,
+    wordle,
+
+  default-language: Haskell2010
