@@ -2,8 +2,7 @@ module Game where
 
 import Data.List (elemIndices, mapAccumL)
 import System.Random (RandomGen, uniformR)
-
-data Match = Correct | Present | Absent deriving (Eq, Show)
+import Utils (Match (..))
 
 data GameResult = Won [Match] | Lost [Match] | InProgress [Match] deriving (Eq, Show)
 

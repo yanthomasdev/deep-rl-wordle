@@ -1,28 +1,16 @@
 cabal-version: 3.0
-name: agent
+name: shared
 version: 0.1.0.0
-synopsis: A deep reinforcement learning agent for Wordle
+synopsis: Shared utilities for Deep RL Wordle project
 license: MIT
 author: Alan Moura, Álvaro Ferrante, Igor Silva, João Victor, Juliana Cabral, Yan Thomas
 build-type: Simple
 
 library
-  exposed-modules: DQN
+  exposed-modules: Utils
   hs-source-dirs: src
   build-depends:
     base ^>=4.18.3.0,
-    random,
-    shared,
-
-executable agent
-  main-is: Main.hs
-  hs-source-dirs: app
-  build-depends:
-    agent,
-    base ^>=4.18.3.0,
     filepath,
-    random,
-    shared,
-    wordle,
 
   default-language: Haskell2010

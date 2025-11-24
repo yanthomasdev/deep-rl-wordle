@@ -6,65 +6,21 @@ import Control.Exception (IOException, catch)
 import Data.Char (toUpper)
 import Data.List (intercalate)
 import Game
-import System.FilePath ((</>))
-import System.IO (BufferMode (LineBuffering, NoBuffering), hFlush, hSetBuffering, hSetEncoding, stdin, stdout, utf8)
+import System.IO (BufferMode (LineBuffering, NoBuffering), hFlush, hSetBuffering, hSetEncoding, stdin, stdout)
 import System.Random (getStdGen)
-
--- ANSI color codes
-greenBg :: String -> String
-greenBg s = "\ESC[42m\ESC[30m " ++ s ++ " \ESC[0m"
-
-yellowBg :: String -> String
-yellowBg s = "\ESC[43m\ESC[30m " ++ s ++ " \ESC[0m"
-
-grayBg :: String -> String
-grayBg s = "\ESC[100m\ESC[37m " ++ s ++ " \ESC[0m"
-
--- Format a single letter with its match result
-formatLetter :: Char -> Match -> String
-formatLetter c Correct = greenBg [c]
-formatLetter c Present = yellowBg [c]
-formatLetter c Absent = grayBg [c]
-
--- Format an entire guess with its matches
-formatGuess :: String -> [Match] -> String
-formatGuess guess matches =
-  unwords $ zipWith formatLetter guess matches
+import Utils
 
 -- Display the game board with all previous guesses
 displayBoard :: [(String, [Match])] -> Int -> IO ()
 displayBoard guesses attemptsLeft = do
   putStrLn "\n=== WORDLE ==="
   putStrLn ""
+
   mapM_ (\(g, m) -> putStrLn $ "  " ++ formatGuess g m) guesses
+
   putStrLn ""
   putStrLn $ "Attempts remaining: " ++ show attemptsLeft
   putStrLn ""
-
--- Load words from a file
-loadWordsFromFile :: FilePath -> IO [String]
-loadWordsFromFile filepath = do
-  contents <- readFile filepath
-  return $ map (map toUpper) $ filter (\w -> length w == 5) $ lines contents
-
--- Try multiple possible file paths
-loadWords :: FilePath -> IO [String]
-loadWords filename = do
-  let paths =
-        [ filename, -- Current directory
-          ".." </> ".." </> filename, -- From wordle/app/
-          ".." </> filename -- From wordle/
-        ]
-  tryPaths paths
-  where
-    tryPaths [] = return []
-    tryPaths (p : ps) = do
-      result <- (loadWordsFromFile p >> return p) `catch` \(_ :: IOException) -> return ""
-      if null result
-        then tryPaths ps
-        else do
-          putStrLn $ "[OK] Loaded words from: " ++ p
-          loadWordsFromFile p
 
 -- Main game loop
 gameLoop :: [String] -> [String] -> GameState -> [(String, [Match])] -> IO ()
@@ -93,12 +49,14 @@ gameLoop guesses solutions gameState history = do
             Won matches -> do
               let newHistory = history ++ [(guess, matches)]
               displayBoard newHistory (attemptsLeft newState)
-              putStrLn "*** Congratulations! You won! ***"
+
+              putStrLn $ greenText "*** Congratulations! You won! ***"
               putStrLn $ "The word was: " ++ solution gameState
             Lost matches -> do
               let newHistory = history ++ [(guess, matches)]
               displayBoard newHistory (attemptsLeft newState)
-              putStrLn "Game Over! You've run out of attempts."
+
+              putStrLn $ redText "Game Over! You've run out of attempts."
               putStrLn $ "The word was: " ++ solution gameState
             InProgress matches -> do
               let newHistory = history ++ [(guess, matches)]
